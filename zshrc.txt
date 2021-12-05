@@ -1,0 +1,126 @@
+export PATH="$PATH:$HOME/.composer/vendor/bin"
+export PATH=${PATH}:/usr/local/mysql/bin/
+export PATH="/opt/homebrew/opt/php@8.1/bin:$PATH"
+export PATH="/opt/homebrew/opt/php@8.1/sbin:$PATH"
+#export PATH="/opt/homebrew/opt/php@7.4/bin:$PATH"
+#export PATH="/opt/homebrew/opt/php@7.4/sbin:$PATH"
+export ZSH="/Users/dave/.oh-my-zsh"
+
+# Open sublime command
+subl () {
+   open -a "Sublime Text" $@
+}
+
+# Run tests
+function p() {
+   if [ -f vendor/bin/pest ]; then
+      vendor/bin/pest "$@"
+   else
+      vendor/bin/phpunit "$@"
+   fi
+}
+
+function pf() {
+   if [ -f vendor/bin/pest ]; then
+      vendor/bin/pest --filter "$@"
+   else
+      vendor/bin/phpunit --filter "$@"
+   fi
+}
+
+# Start an HTTP server from a directory, optionally specifying the port
+function server() {
+   local port="${1:-9000}"
+   sleep 2 && open "http://localhost:${port}/" &
+   # Set the default Content-Type to `text/plain` instead of `application/octet-stream`
+   # And serve everything as UTF-8 (although not technically correct, this doesn’t break anything for binary files)
+   python -c $'import SimpleHTTPServer;\nmap = SimpleHTTPServer.SimpleHTTPRequestHandler.extensions_map;\nmap[""] = "text/plain";\nfor key, value in map.items():\n\tmap[key] = value + ";charset=UTF-8";\nSimpleHTTPServer.test();' "$port"
+}
+
+# Start a PHP server from a directory, optionally specifying the port
+# (Requires PHP 5.4.0+.)
+function phpserver() {
+   local port="${1:-4000}"
+   local ip=$(ipconfig getifaddr en0)
+   sleep 2 && open "http://${ip}:${port}/" &
+   php -S "${ip}:${port}"
+}
+
+#tools
+alias storm='open -a "/Users/dave/Applications/JetBrains Toolbox/PhpStorm.app" "`pwd`"'
+alias code='open -a "/Applications/Visual Studio Code.app" "`pwd`"'
+
+#laravel
+function tinker()
+{
+  if [ -z "$1" ]
+    then
+       php artisan tinker
+    else
+       php artisan tinker --execute="dd($1);"
+  fi
+}
+
+alias a="php artisan"
+alias t="clear && php artisan test"
+alias tp="clear && php artisan test --parallel"
+
+# Show/hide hidden files in Finder
+alias show="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
+alias hide="defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder"
+
+# PHP switcher
+alias switch-php8="brew unlink php@7.4 && brew link --overwrite --force php@8.1"
+alias switch-php74="brew unlink php && brew link --overwrite --force php@7.4"
+alias phpunit="vendor/bin/phpunit"
+alias pest="vendor/bin/pestphp"
+
+#valet
+alias vs='valet secure'
+alias tunnel='valet share -subdomain=dc -region=eu'
+
+#host file
+alias hostfile="sudo vi /etc/hosts"
+
+#composer
+alias cu='composer update'
+alias ci='composer install'
+alias cda='composer dump-autoload -o'
+alias cr='composer require'
+
+#git
+function gac()
+{
+   #usage gac . 'the message'
+   git add $1 && git commit -m "$2"
+}
+
+alias git=hub
+alias g="hub"
+alias gc="git checkout"
+alias gm="git merge"
+alias gl="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+alias gs="git status"
+alias gp="git push"
+alias gpu="git pull"
+alias gno="git reset --hard HEAD"
+alias glog='git log --oneline --decorate --graph --all'
+
+# IP addresses
+alias ip="curl https://diagnostic.opendns.com/myip ; echo"
+alias localip="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[0-9]\+\)\|[a-fA-F0-9:]\+\)' | awk '{ sub(/inet6? (addr:)? ?/, \"\"); print }'"
+
+#directories
+alias ls="ls -ls -a"
+alias projects="cd ~/Dropbox\ \(TheOnePointLimited\)/local/projects"
+alias personal="cd ~/Dropbox\ \(TheOnePointLimited\)/local/personal"
+
+#ssh
+alias sshkey="cat ~/.ssh/id_rsa.pub"
+alias sshconfig="vi ~/.ssh/config"
+alias copykey='command cat ~/.ssh/id_rsa.public | pbcopy'
+
+ZSH_THEME="fishy"
+plugins=(git)
+
+source $ZSH/oh-my-zsh.sh
